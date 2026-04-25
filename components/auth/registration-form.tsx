@@ -13,9 +13,7 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Upload,
   CheckCircle2,
-  XCircle,
   ChevronRight,
   ChevronLeft,
   Loader2,
@@ -33,6 +31,7 @@ import {
 } from "@/components/ui/select"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
+import { FaydaVerification } from "@/components/auth/fayda-verification"
 
 const steps = [
   { id: 1, name: "Personal Info", icon: User },
@@ -89,14 +88,23 @@ interface FormErrors {
   [key: string]: string
 }
 
+interface FaydaUserData {
+  faydaId: string
+  fullName: string
+  dateOfBirth: string
+  gender: string
+  address: string
+  photo: string
+}
+
 export function RegistrationForm() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
-  const [isVerifying, setIsVerifying] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({})
+  const [faydaData, setFaydaData] = useState<FaydaUserData | null>(null)
 
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
@@ -191,19 +199,6 @@ export function RegistrationForm() {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
     }
-  }
-
-  const verifyFaydaId = async () => {
-    if (!formData.faydaId || !/^\d{12}$/.test(formData.faydaId)) {
-      setErrors({ faydaId: "Please enter a valid 12-digit Fayda ID" })
-      return
-    }
-
-    setIsVerifying(true)
-    // Simulate verification API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    updateFormData("faydaVerified", true)
-    setIsVerifying(false)
   }
 
   const handleSubmit = async () => {
@@ -472,116 +467,37 @@ export function RegistrationForm() {
           {/* Step 2: Identity Verification */}
           {currentStep === 2 && (
             <div className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="faydaId">Fayda ID Number</Label>
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="faydaId"
-                      placeholder="Enter 12-digit Fayda ID"
-                      className={cn("pl-10", errors.faydaId && "border-destructive")}
-                      value={formData.faydaId}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, "").slice(0, 12)
-                        updateFormData("faydaId", value)
-                        if (formData.faydaVerified) {
-                          updateFormData("faydaVerified", false)
-                        }
-                      }}
-                      maxLength={12}
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={verifyFaydaId}
-                    disabled={isVerifying || formData.faydaVerified}
-                    className="min-w-[100px]"
-                  >
-                    {isVerifying ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : formData.faydaVerified ? (
-                      "Verified"
-                    ) : (
-                      "Verify"
-                    )}
-                  </Button>
-                </div>
-                {errors.faydaId && (
-                  <p className="text-xs text-destructive">{errors.faydaId}</p>
-                )}
-              </div>
-
-              {/* Verification Status Badge */}
-              <div
-                className={cn(
-                  "flex items-center gap-3 p-4 rounded-lg",
-                  formData.faydaVerified
-                    ? "bg-success/10 border border-success/30"
-                    : "bg-muted border border-border"
-                )}
-              >
-                {formData.faydaVerified ? (
-                  <>
-                    <CheckCircle2 className="h-6 w-6 text-success" />
-                    <div>
-                      <p className="font-medium text-success">Identity Verified</p>
-                      <p className="text-sm text-muted-foreground">
-                        Your Fayda ID has been successfully verified
-                      </p>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <XCircle className="h-6 w-6 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium text-foreground">Not Verified</p>
-                      <p className="text-sm text-muted-foreground">
-                        Please enter your Fayda ID and click verify
-                      </p>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* ID Document Upload */}
-              <div className="space-y-2">
-                <Label>Upload ID Document (Optional)</Label>
-                <div
-                  className={cn(
-                    "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors hover:border-primary/50 hover:bg-muted/50",
-                    formData.idDocument ? "border-primary bg-primary/5" : "border-border"
-                  )}
-                  onClick={() => document.getElementById("idDocument")?.click()}
-                >
-                  <input
-                    id="idDocument"
-                    type="file"
-                    className="hidden"
-                    accept="image/*,.pdf"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] || null
-                      updateFormData("idDocument", file)
-                    }}
-                  />
-                  <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-                  {formData.idDocument ? (
-                    <p className="text-sm font-medium text-primary">
-                      {formData.idDocument.name}
-                    </p>
-                  ) : (
-                    <>
-                      <p className="text-sm font-medium text-foreground">
-                        Click to upload or drag and drop
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        PNG, JPG or PDF up to 10MB
-                      </p>
-                    </>
-                  )}
-                </div>
-              </div>
+              <FaydaVerification
+                initialFaydaId={formData.faydaId}
+                onVerificationComplete={(data) => {
+                  if (data) {
+                    setFaydaData(data)
+                    updateFormData("faydaId", data.faydaId)
+                    updateFormData("faydaVerified", true)
+                    // Auto-fill personal info from Fayda data
+                    const nameParts = data.fullName.split(" ")
+                    if (nameParts.length >= 3) {
+                      updateFormData("firstName", nameParts[0])
+                      updateFormData("fatherName", nameParts[1])
+                      updateFormData("grandfatherName", nameParts.slice(2).join(" "))
+                    }
+                    if (data.dateOfBirth) {
+                      updateFormData("dateOfBirth", data.dateOfBirth)
+                    }
+                    if (data.gender) {
+                      updateFormData("gender", data.gender.toLowerCase())
+                    }
+                    if (data.address) {
+                      const addressParts = data.address.split(", ")
+                      if (addressParts.length >= 3) {
+                        updateFormData("city", addressParts[0])
+                        updateFormData("subCity", addressParts[1])
+                        updateFormData("kebele", addressParts[2])
+                      }
+                    }
+                  }
+                }}
+              />
             </div>
           )}
 

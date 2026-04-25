@@ -109,9 +109,10 @@ export default function HomePage() {
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/login">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                  Sign In to Dashboard
+              <Link href="/fayda-verification">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2">
+                  <CreditCard className="h-4 w-4" />
+                  Verify with Fayda ID
                 </Button>
               </Link>
             </div>

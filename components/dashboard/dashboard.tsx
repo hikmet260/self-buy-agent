@@ -252,29 +252,37 @@ export function Dashboard() {
             </Card>
 
             {/* Fayda Verification Status */}
-            <Card className="border-0 shadow-sm">
+            <Card className="border-0 shadow-sm overflow-hidden">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Shield className="h-5 w-5 text-primary" />
                   Identity Verification
                 </CardTitle>
+                <CardDescription>
+                  Fayda National ID verification status
+                </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 <div
                   className={cn(
                     "flex items-center gap-3 p-4 rounded-lg",
                     demoUser.faydaVerified
                       ? "bg-success/10 border border-success/20"
-                      : "bg-muted"
+                      : "bg-warning/10 border border-warning/20"
                   )}
                 >
-                  <CheckCircle2
-                    className={cn(
-                      "h-6 w-6",
-                      demoUser.faydaVerified ? "text-success" : "text-muted-foreground"
-                    )}
-                  />
-                  <div>
+                  <div className={cn(
+                    "w-12 h-12 rounded-full flex items-center justify-center",
+                    demoUser.faydaVerified ? "bg-success/20" : "bg-warning/20"
+                  )}>
+                    <CheckCircle2
+                      className={cn(
+                        "h-6 w-6",
+                        demoUser.faydaVerified ? "text-success" : "text-warning"
+                      )}
+                    />
+                  </div>
+                  <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-foreground">Fayda ID</p>
                       <Badge
@@ -282,18 +290,39 @@ export function Dashboard() {
                         className={cn(
                           "text-xs",
                           demoUser.faydaVerified
-                            ? "border-success text-success"
-                            : "border-muted-foreground"
+                            ? "border-success text-success bg-success/10"
+                            : "border-warning text-warning bg-warning/10"
                         )}
                       >
-                        {demoUser.faydaVerified ? "Verified" : "Not Verified"}
+                        {demoUser.faydaVerified ? "Verified" : "Pending"}
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground font-mono mt-1">
-                      {demoUser.faydaId.replace(/(\d{4})/g, "$1 ").trim()}
+                      {demoUser.faydaId.replace(/(\d{4})/g, "$1-").slice(0, -1)}
                     </p>
                   </div>
                 </div>
+
+                {demoUser.faydaVerified ? (
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <p className="text-muted-foreground text-xs">Verified On</p>
+                      <p className="font-medium">Apr 15, 2024</p>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <p className="text-muted-foreground text-xs">Valid Until</p>
+                      <p className="font-medium">Apr 15, 2034</p>
+                    </div>
+                  </div>
+                ) : (
+                  <Button 
+                    className="w-full gap-2"
+                    onClick={() => router.push("/fayda-verification")}
+                  >
+                    <Shield className="h-4 w-4" />
+                    Verify Now
+                  </Button>
+                )}
               </CardContent>
             </Card>
 
