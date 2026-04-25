@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Mail, Lock, Eye, EyeOff, Loader2, Shield } from "lucide-react"
+import { Mail, Lock, Eye, EyeOff, Loader2, Bot } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -55,12 +55,12 @@ export function LoginForm() {
     <div className="w-full max-w-md mx-auto">
       <Card className="shadow-lg border-0">
         <CardHeader className="space-y-1 pb-6 text-center">
-          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <Shield className="h-6 w-6 text-primary" />
+          <div className="mx-auto w-12 h-12 bg-primary rounded-xl flex items-center justify-center mb-4">
+            <Bot className="h-6 w-6 text-primary-foreground" />
           </div>
           <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
           <CardDescription>
-            Sign in to your SecureBank account
+            Sign in to your ShopAgent account
           </CardDescription>
         </CardHeader>
 
@@ -154,7 +154,7 @@ export function LoginForm() {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-card px-2 text-muted-foreground">
-                  New to SecureBank?
+                  New to ShopAgent?
                 </span>
               </div>
             </div>

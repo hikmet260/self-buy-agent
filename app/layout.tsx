@@ -7,8 +7,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'SecureBank - Digital Banking',
-  description: 'Modern, secure digital banking platform with Fayda ID verification',
+  title: 'ShopAgent AI - Smart Product Finder',
+  description: 'AI-powered product search agent that finds the best deals across official websites with secure Fayda ID verified payments',
   generator: 'v0.app',
   icons: {
     icon: [
