@@ -77,6 +77,8 @@ export default function DashboardPage() {
   const [selectedAddress, setSelectedAddress] = useState("");
   const [selectedPayment, setSelectedPayment] = useState("");
   const [creating, setCreating] = useState(false);
+  const [showProducts, setShowProducts] = useState(false);
+  const [productResults, setProductResults] = useState<{name: string; price: string; source: string; url: string; image: string}[]>([]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -120,38 +122,32 @@ export default function DashboardPage() {
 
   const handleCreateOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!supabase || !user || !newProduct || !newMaxPrice || !selectedAddress || !selectedPayment) return;
+    if (!newProduct || !newMaxPrice) return;
 
     setCreating(true);
     try {
-      const { data, error } = await supabase
-        .from("orders")
-        .insert({
-          user_id: user.id,
-          product_name: newProduct,
-          max_price: parseFloat(newMaxPrice),
-          shipping_address_id: selectedAddress,
-          payment_method_id: selectedPayment,
-          status: "pending",
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setNewProduct("");
-      setNewMaxPrice("");
-      setSelectedAddress("");
-      setSelectedPayment("");
-
-      if (data) {
-        router.push(`/dashboard/orders/${data.id}`);
-      }
+      const response = await fetch('/api/products/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product: newProduct, maxPrice: newMaxPrice }),
+      });
+      
+      const products = await response.json();
+      setProductResults(products.slice(0, 3));
+      setShowProducts(true);
     } catch (err) {
-      console.error("Failed to create order:", err);
+      console.error("Failed to search products:", err);
     } finally {
       setCreating(false);
     }
+  };
+
+  const handleSelectProduct = (product: {name: string; price: string; source: string; url: string; image: string}) => {
+    window.open(product.url, "_blank");
+    setShowProducts(false);
+    setProductResults([]);
+    setNewProduct("");
+    setNewMaxPrice("");
   };
 
   if (loading) {
@@ -218,8 +214,8 @@ export default function DashboardPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Shipping Address</Label>
-                      <Select value={selectedAddress} onValueChange={setSelectedAddress} required>
+                      <Label>Shipping Address (Optional)</Label>
+                      <Select value={selectedAddress} onValueChange={setSelectedAddress}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select address" />
                         </SelectTrigger>
@@ -233,8 +229,8 @@ export default function DashboardPage() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Payment Method</Label>
-                      <Select value={selectedPayment} onValueChange={setSelectedPayment} required>
+                      <Label>Payment Method (Optional)</Label>
+                      <Select value={selectedPayment} onValueChange={setSelectedPayment}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select payment" />
                         </SelectTrigger>
@@ -248,7 +244,7 @@ export default function DashboardPage() {
                       </Select>
                     </div>
                   </div>
-                  <Button type="submit" className="w-full" disabled={creating || !addresses.length || !payments.length}>
+                  <Button type="submit" className="w-full" disabled={creating || !newProduct || !newMaxPrice}>
                     {creating ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -261,12 +257,27 @@ export default function DashboardPage() {
                       </>
                     )}
                   </Button>
-                  {(!addresses.length || !payments.length) && (
-                    <p className="text-sm text-yellow-600 text-center">
-                      Please add a shipping address and payment method first
-                    </p>
-                  )}
                 </form>
+                {showProducts && (
+                  <div className="mt-6 space-y-3">
+                    <h3 className="font-semibold">Found 3 Products</h3>
+                    {productResults.map((product, idx) => (
+                      <div key={idx} className="flex items-center gap-4 p-3 border rounded-lg hover:bg-gray-50">
+                        <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                        <div className="flex-1">
+                          <p className="font-medium">{product.source}</p>
+                          <p className="text-sm text-muted-foreground">${product.price}</p>
+                        </div>
+                        <Button size="sm" onClick={() => handleSelectProduct(product)}>
+                          View
+                        </Button>
+                      </div>
+                    ))}
+                    <Button variant="outline" className="w-full mt-2" onClick={() => { setShowProducts(false); setProductResults([]); }}>
+                      Cancel
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
