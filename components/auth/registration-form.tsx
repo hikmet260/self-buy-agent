@@ -149,8 +149,8 @@ export function RegistrationForm() {
         if (!formData.dateOfBirth) newErrors.dateOfBirth = "Date of birth is required"
         if (!formData.gender) newErrors.gender = "Gender is required"
         if (!formData.phone.trim()) newErrors.phone = "Phone number is required"
-        else if (!/^(\+251|0)?9\d{8}$/.test(formData.phone.replace(/\s/g, "")))
-          newErrors.phone = "Invalid Ethiopian phone number"
+        else if (!/^(\+251|0)?[-\s]?9\d{8}$/.test(formData.phone.replace(/[-\s]/g, "")))
+          newErrors.phone = "Enter a valid Ethiopian number (e.g., +251912345678)"
         if (!formData.email.trim()) newErrors.email = "Email is required"
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
           newErrors.email = "Invalid email address"
@@ -391,10 +391,14 @@ export function RegistrationForm() {
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="phone"
-                      placeholder="+251 9XX XXX XXX"
+                      placeholder="+251912345678 or 0912345678"
                       className={cn("pl-10", errors.phone && "border-destructive")}
                       value={formData.phone}
-                      onChange={(e) => updateFormData("phone", e.target.value)}
+                      onChange={(e) => {
+                        // Allow only digits, +, -, and spaces
+                        const value = e.target.value.replace(/[^\d+\-\s]/g, "")
+                        updateFormData("phone", value)
+                      }}
                     />
                   </div>
                   {errors.phone && (

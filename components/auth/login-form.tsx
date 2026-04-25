@@ -27,9 +27,9 @@ export function LoginForm() {
       newErrors.email = "Email or phone is required"
     } else if (
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
-      !/^(\+251|0)?9\d{8}$/.test(email.replace(/\s/g, ""))
+      !/^(\+251|0)?[-\s]?9\d{8}$/.test(email.replace(/[-\s]/g, ""))
     ) {
-      newErrors.email = "Invalid email or phone number"
+      newErrors.email = "Invalid email or phone (e.g., +251912345678)"
     }
 
     if (!password) {
@@ -73,7 +73,7 @@ export function LoginForm() {
                 <Input
                   id="email"
                   type="text"
-                  placeholder="you@example.com or +251 9XX XXX XXX"
+                  placeholder="you@example.com or +251912345678"
                   className={cn("pl-10", errors.email && "border-destructive")}
                   value={email}
                   onChange={(e) => {
